@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>私たちについて — おくみや株式会社</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap"/>
+<link rel="stylesheet" href="shared/base.css"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div data-nav-host></div>
+<main>
+  <section class="section">
+    <div class="container">
+      <span class="eyebrow" data-i="profile.eyebrow"></span>
+      <div class="A-about-hero" style="margin-top:18px">
+        <div>
+          <div style="aspect-ratio:4/5;background-image:url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=900&q=80&auto=format&fit=crop');background-size:cover;background-position:center 25%;filter:saturate(.92) contrast(1.02);border-radius:2px"></div>
+          <div class="mono" style="margin-top:14px;font-size:11px;color:var(--ink-3);letter-spacing:.14em">代表ポートレート / 桜島を背景に</div>
+        </div>
+        <div>
+          <h2 style="font-size:clamp(36px,6vw,72px);line-height:1.08;overflow-wrap:anywhere" data-i="profile.name"></h2>
+          <div class="mono" style="font-size:13px;color:var(--ink-3);letter-spacing:.1em;margin-top:10px" data-i="profile.role"></div>
+          <p style="margin-top:24px;color:var(--ink-2);font-size:16px;line-height:1.85;max-width:48ch" data-i="profile.bio"></p>
+          <dl style="margin-top:32px;display:grid;grid-template-columns:120px 1fr;gap:14px 18px" data-render="facts"></dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--paper)">
+    <div class="container">
+      <span class="eyebrow" data-i="profile.certs_title"></span>
+      <h2 style="font-size:var(--h2);margin-top:14px;margin-bottom:32px"><span data-l="保有資格 / Credentials / 持有资格"></span></h2>
+      <div class="A-certs" data-render="certs"></div>
+      <p class="mono" style="margin-top:18px;font-size:11px;color:var(--ink-3);letter-spacing:.08em">+ <span data-i="profile.cert_more"></span></p>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--ink);color:var(--bg)">
+    <div class="container A-contact-grid">
+      <div>
+        <span class="eyebrow" style="color:rgba(255,255,255,.6)" data-i="contact.eyebrow"></span>
+        <h2 data-i="contact.title"></h2>
+        <a class="btn btn-light" style="margin-top:24px" href="contact.html"><span data-i="contact.cta"></span></a>
+      </div>
+    </div>
+  </section>
+</main>
+<div data-foot-host></div>
+<div data-tools-host></div>
+<script src="shared/i18n.js"></script>
+<script src="shared/app.js"></script>
+<script>
+(function(){
+  function render(){
+    const lang = Okumiya.LS.get('lang','ja');
+    const t = window.OKUMIYA_I18N[lang];
+    document.querySelectorAll('[data-i]').forEach(el=>{
+      const path = el.dataset.i.split('.');
+      let v = t; path.forEach(p=> v = v && v[p]);
+      if (typeof v === 'string') el.textContent = v;
+    });
+    document.querySelectorAll('[data-l]').forEach(el=>{
+      const parts = el.dataset.l.split(' / ');
+      el.textContent = parts[lang==='ja'?0:lang==='en'?1:2] || parts[0];
+    });
+    const facts = document.querySelector('[data-render="facts"]');
+    if (facts) facts.innerHTML = t.profile.facts.map(([k,v])=>`
+      <dt class="mono" style="font-size:11px;color:var(--ink-3);letter-spacing:.16em;text-transform:uppercase;padding-top:4px">${k}</dt>
+      <dd style="margin:0;font-size:15px">${v}</dd>`).join('');
+    const certs = document.querySelector('[data-render="certs"]');
+    if (certs) certs.innerHTML = t.profile.certs.map(c=>`
+      <div class="A-cert">
+        <div class="top"><span class="code">${c.code}</span><span class="year">${c.year}</span></div>
+        <div class="name">${c.name}</div>
+      </div>`).join('');
+  }
+  Okumiya.init({ page: 'about', render });
+})();
+</script>
+</body>
+</html>

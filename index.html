@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<title>Prototypes</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#fbfaf7" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbfaf7;
+    --bg-alt: #f3f1ec;
+    --fg: #15140f;
+    --fg-muted: #7a786f;
+    --line: #d8d4c8;
+    --accent: #15140f;
+    --ph-a: #efece4;
+    --ph-b: #e6e3d9;
+    --shadow: 0 24px 48px -28px rgba(21,20,15,0.25);
+    --serif: "Shippori Mincho", "Times New Roman", serif;
+    --body: "Inter", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+  }
+  [data-theme="dark"] {
+    --bg: #14140f;
+    --bg-alt: #1c1c17;
+    --fg: #f3f1ec;
+    --fg-muted: #8a8880;
+    --line: #2e2d27;
+    --accent: #f3f1ec;
+    --ph-a: #1f1e18;
+    --ph-b: #25241e;
+    --shadow: 0 24px 48px -28px rgba(0,0,0,0.5);
+  }
+  html, body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+    font-family: var(--body);
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 100%;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* — TOP — */
+  .top {
+    display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 24px;
+    padding: 32px 56px 0;
+    max-width: 1480px; margin: 0 auto;
+  }
+  .brand {
+    font-family: var(--serif); font-size: 24px; letter-spacing: -0.01em;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .brand .dot {
+    width: 9px; height: 9px; background: var(--fg); border-radius: 999px;
+    align-self: center;
+  }
+  .brand small {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em;
+    color: var(--fg-muted); text-transform: uppercase;
+  }
+  .controls {
+    display: flex; align-items: center; gap: 10px;
+    position: relative;
+  }
+  .seg {
+    display: inline-flex; border: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .seg button {
+    background: transparent; border: none; cursor: pointer;
+    padding: 8px 12px;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em;
+    color: var(--fg-muted); text-transform: uppercase;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .seg button.on { background: var(--fg); color: var(--bg); }
+  .seg button:not(.on):hover { color: var(--fg); }
+
+  /* — MENU BUTTON — */
+  .menu-btn {
+    width: 38px; height: 38px;
+    border: 1px solid var(--line); border-radius: 999px;
+    background: var(--bg); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fg);
+    font-family: var(--mono); font-size: 16px; letter-spacing: 0.05em;
+    line-height: 1; white-space: nowrap; flex-shrink: 0;
+    transition: background-color 0.2s, border-color 0.2s;
+  }
+  .menu-btn:hover, .menu-btn.open { border-color: var(--fg); }
+  .menu-panel {
+    position: absolute; top: calc(100% + 10px); right: 0;
+    background: var(--bg); border: 1px solid var(--line);
+    padding: 16px 18px;
+    display: flex; flex-direction: column; gap: 14px;
+    min-width: 192px;
+    box-shadow: var(--shadow);
+    opacity: 0; pointer-events: none;
+    transform: translateY(-6px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    z-index: 200;
+  }
+  .menu-panel.open {
+    opacity: 1; pointer-events: auto;
+    transform: translateY(0);
+  }
+  .menu-section { display: flex; flex-direction: column; gap: 8px; }
+  .menu-label {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.22em;
+    color: var(--fg-muted); text-transform: uppercase;
+  }
+  .menu-divider { height: 1px; background: var(--line); }
+
+  /* — HEADER LINE — */
+  .header {
+    padding: 56px 56px 40px;
+    max-width: 1480px; margin: 0 auto;
+    border-bottom: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end;
+  }
+  .header h1 {
+    font-family: var(--serif); font-weight: 400;
+    font-size: clamp(36px, 5.6vw, 72px);
+    line-height: 1.1; letter-spacing: -0.02em;
+    margin: 0;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .header h1 em { color: var(--fg-muted); font-weight: 400; font-style: normal; }
+  .header .count {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; color: var(--fg-muted);
+    text-transform: uppercase; white-space: nowrap;
+  }
+  .header .count b { color: var(--fg); font-weight: 400; }
+
+  /* — GRID — */
+  .grid {
+    max-width: 1480px; margin: 0 auto;
+    padding: 48px 56px 80px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+
+  .card {
+    display: flex; flex-direction: column;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    transition: transform 0.25s cubic-bezier(.2,.7,.2,1), border-color 0.2s, box-shadow 0.25s, background-color 0.3s;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    border-color: var(--fg);
+    box-shadow: var(--shadow);
+  }
+
+  .preview {
+    aspect-ratio: 4 / 3;
+    background-image: repeating-linear-gradient(135deg, var(--ph-a) 0 8px, var(--ph-b) 8px 16px);
+    border-bottom: 1px solid var(--line);
+    position: relative; overflow: hidden;
+  }
+  .preview img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(0.92) contrast(0.98);
+  }
+  .preview .num {
+    position: absolute; top: 14px; left: 14px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em; color: var(--fg-muted);
+    background: var(--bg); padding: 4px 10px; border: 1px solid var(--line);
+  }
+  .preview .arrow {
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px; border-radius: 999px;
+    background: var(--bg); border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 14px;
+    transition: transform 0.25s;
+  }
+  .preview .tag {
+    position: absolute; bottom: 14px; left: 14px;
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.2em; color: var(--fg-muted);
+    background: var(--bg); padding: 4px 10px; border: 1px solid var(--line);
+    text-transform: uppercase;
+  }
+
+  /* Mini illustrations in preview — minimal SVG-ish shapes */
+  .preview-art {
+    position: absolute; inset: 14% 16% 28%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .preview-art .mock {
+    background: var(--bg); border: 1px solid var(--line);
+    box-shadow: 0 8px 24px -16px rgba(21,20,15,0.35);
+  }
+
+  /* Variant: mobile frame mock */
+  .preview-art.phone .mock {
+    width: 38%; aspect-ratio: 9/19; border-radius: 14px;
+    background: var(--bg-alt);
+    position: relative;
+    padding: 18px 10px 10px;
+  }
+  .preview-art.phone .mock::before {
+    content: ""; position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+    width: 30%; height: 6px; border-radius: 4px; background: var(--fg);
+  }
+  .preview-art.phone .mock .ln { height: 5px; background: var(--line); margin: 4px 0; border-radius: 2px; }
+  .preview-art.phone .mock .ln.sh { width: 60%; }
+  .preview-art.phone .mock .blk { height: 38%; background: var(--ph-a); border: 1px solid var(--line); margin: 6px 0; }
+  .preview-art.phone .mock .pill { width: 70%; height: 9px; background: var(--fg); border-radius: 999px; margin: 8px auto 0; }
+
+  /* Variant: desktop frame mock */
+  .preview-art.desktop { inset: 16% 12% 16%; }
+  .preview-art.desktop .mock {
+    width: 100%; aspect-ratio: 16/10;
+    padding: 8px;
+    display: flex; flex-direction: column;
+  }
+  .preview-art.desktop .mock .bar {
+    display: flex; gap: 4px; padding-bottom: 8px; border-bottom: 1px solid var(--line);
+  }
+  .preview-art.desktop .mock .bar i {
+    width: 6px; height: 6px; border-radius: 999px; background: var(--line);
+  }
+  .preview-art.desktop .mock .body {
+    flex: 1; margin-top: 8px;
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 6px;
+  }
+  .preview-art.desktop .mock .body .col {
+    background: var(--ph-a); border: 1px solid var(--line);
+  }
+
+  /* Variant: split (desktop + mobile) */
+  .preview-art.split { inset: 14% 10% 18%; gap: 8%; }
+  .preview-art.split .desktop-m {
+    width: 60%; aspect-ratio: 16/10;
+    background: var(--bg); border: 1px solid var(--line);
+    padding: 6px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .preview-art.split .desktop-m .bar { height: 6px; background: var(--line); border-radius: 2px; width: 30%; }
+  .preview-art.split .desktop-m .blk { flex: 1; background: var(--ph-a); border: 1px solid var(--line); }
+  .preview-art.split .phone-m {
+    width: 22%; aspect-ratio: 9/18; background: var(--bg-alt);
+    border: 1px solid var(--line); border-radius: 10px;
+    position: relative;
+    margin-left: -8%;
+  }
+  .preview-art.split .phone-m::before {
+    content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 60%; height: 60%;
+    background-image: repeating-linear-gradient(135deg, var(--ph-a) 0 4px, var(--ph-b) 4px 8px);
+  }
+
+  /* Variant: gallery / cards */
+  .preview-art.gallery { inset: 16% 14%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .preview-art.gallery > div {
+    background-image: repeating-linear-gradient(135deg, var(--ph-a) 0 4px, var(--ph-b) 4px 8px);
+    border: 1px solid var(--line);
+  }
+
+  /* Variant: editorial type */
+  .preview-art.type { inset: 18% 14%; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; justify-content: center; }
+  .preview-art.type .big {
+    font-family: var(--serif); font-size: 36px; line-height: 0.9; color: var(--fg);
+  }
+  .preview-art.type .small {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.22em; color: var(--fg-muted);
+    text-transform: uppercase;
+  }
+  .preview-art.type hr { width: 30%; border: none; border-top: 1px solid var(--fg); margin: 0; }
+
+  /* Variant: calendar flow */
+  .preview-art.flow { inset: 18% 14%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; align-items: center; }
+  .preview-art.flow .step {
+    aspect-ratio: 1/1.4; background: var(--bg); border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 14px; color: var(--fg-muted);
+  }
+  .preview-art.flow .step.cur { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+  .card-body {
+    padding: 24px 22px 22px;
+    display: flex; flex-direction: column; gap: 10px;
+    flex: 1;
+  }
+  .card-body h2 {
+    font-family: var(--serif); font-weight: 400; font-size: 24px;
+    line-height: 1.2; letter-spacing: -0.005em;
+    margin: 0;
+    min-height: calc(24px * 1.2 * 2);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-body p {
+    font-size: 14px; line-height: 1.65; color: var(--fg-muted);
+    margin: 0;
+    min-height: calc(14px * 1.65 * 2);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-foot {
+    margin-top: 6px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+    color: var(--fg-muted); text-transform: uppercase;
+  }
+  .card-foot .kind {
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .card-foot .kind::before {
+    content: ""; width: 6px; height: 6px; border-radius: 999px; background: var(--fg);
+  }
+
+  /* — FOOT — */
+  footer {
+    max-width: 1480px; margin: 0 auto;
+    padding: 32px 56px 56px;
+    border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; gap: 24px;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em; color: var(--fg-muted); text-transform: uppercase;
+  }
+
+  /* — RESPONSIVE — */
+  @media (max-width: 1000px) {
+    .grid { grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 36px 32px 64px; }
+    .top, .header, footer { padding-left: 32px; padding-right: 32px; }
+    .header { padding-top: 40px; padding-bottom: 28px; }
+  }
+  @media (max-width: 640px) {
+    .top {
+      padding: 24px 20px 0;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+    }
+    .header {
+      padding: 28px 20px 24px;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .header h1 { font-size: clamp(28px, 8.5vw, 42px); }
+    .grid {
+      grid-template-columns: 1fr;
+      padding: 24px 20px 64px;
+      gap: 16px;
+    }
+    footer {
+      padding: 28px 20px 32px;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card-body { padding: 20px 18px 18px; }
+    .card-body h2 { font-size: 22px; }
+  }
+</style>
+</head>
+<body data-theme="light">
+
+<div class="top">
+  <div class="brand">
+    <span class="dot"></span>
+    <span data-i18n="brand">プロトタイプ集</span>
+  </div>
+  <div class="controls">
+    <button class="menu-btn" id="menuBtn" aria-label="Settings">···</button>
+    <div class="menu-panel" id="menuPanel">
+      <div class="menu-section">
+        <div class="menu-label">Language</div>
+        <div class="seg" id="langSeg">
+          <button data-lang="ja" class="on">JA</button>
+          <button data-lang="en">EN</button>
+          <button data-lang="zh">中</button>
+        </div>
+      </div>
+      <div class="menu-divider"></div>
+      <div class="menu-section">
+        <div class="menu-label">Theme</div>
+        <div class="seg" id="themeSeg">
+          <button data-theme-val="light" class="on">Light</button>
+          <button data-theme-val="dark">Dark</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="header">
+  <h1 data-i18n-html="headline">作って、<em>試す。</em></h1>
+  <div class="count"><b id="count">—</b> / <span data-i18n="works">works</span></div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<footer>
+  <span data-i18n="footL">— AI Application Engineer / Prototyping</span>
+</footer>
+
+<script>
+  // ── i18n ────────────────────────────────────────────────
+  const I18N = {
+    ja: {
+      brand: 'プロトタイプ集',
+      brandSub: 'AI APPLICATION ENGINEER',
+      headline: '作って、<em>試す。</em>',
+      works: 'works',
+      footL: '— AI アプリケーションエンジニア / Prototyping',
+    },
+    en: {
+      brand: 'Prototypes',
+      brandSub: 'AI APPLICATION ENGINEER',
+      headline: 'Building, <em>experimenting.</em>',
+      works: 'works',
+      footL: '— AI Application Engineer / Prototyping',
+    },
+    zh: {
+      brand: '原型集',
+      brandSub: 'AI APPLICATION ENGINEER',
+      headline: '边做，<em>边试。</em>',
+      works: '件作品',
+      footL: '— AI 应用工程师 / 原型探索',
+    },
+  };
+
+  // Items: each card has title/desc per lang
+  const items = [
+    {
+      tag: 'PROTO 01',
+      href: './hairsalon/index.html',
+      img: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000&q=80&auto=format&fit=crop',
+      ja: { title: 'のがみサロン — Hair Salon', desc: '路地裏の隠れ家サロン。完全予約制のプライベートな時間。', kind: 'Hair Salon' },
+      en: { title: 'Nogami Salon — Hair Salon', desc: 'A hideaway salon in a back street. Private time, by appointment only.', kind: 'Hair Salon' },
+      zh: { title: '野上美发沙龙 — Hair Salon', desc: '藏在小巷深处的隐秘沙龙，完全预约制的私人时光。', kind: '美发沙龙' },
+    },
+    {
+      tag: 'PROTO 02',
+      href: './realestate/index.html',
+      img: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=1000&q=80&auto=format&fit=crop',
+      ja: { title: 'おくみや株式会社｜鹿児島の不動産', desc: '鹿児島の住まいと暮らしを、身近にサポート。', kind: 'Real Estate / FP' },
+      en: { title: 'Okumiya Co., Ltd. — Kagoshima Real Estate & FP', desc: 'A Kagoshima-based boutique firm pairing property brokerage with financial-planning advisory — household by household.', kind: 'Real Estate / FP' },
+      zh: { title: '奥宫株式会社 — 鹿儿岛房产・FP咨询', desc: '扎根鹿儿岛市，将不动产买卖租赁中介与理财规划（FP）相结合的精品事务所网站。', kind: '房产 / FP' },
+    },
+    {
+      tag: 'PROTO 03',
+      img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1000&q=80&auto=format&fit=crop',
+      ja: { title: 'ポートフォリオサイト', desc: '仕事のこと、考えたことを綴るシンプルな個人サイト。', kind: 'Personal Site' },
+      en: { title: 'Personal Homepage', desc: 'A simple personal site to share work and thoughts — portfolio + writing.', kind: 'Personal Site' },
+      zh: { title: '个人主页', desc: '一个用来展示作品与思考的简洁个人网站。', kind: '个人站' },
+    },
+  ];
+
+  let lang = 'ja';
+
+  function renderShell() {
+    const dict = I18N[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const k = el.dataset.i18n;
+      if (dict[k] != null) el.textContent = dict[k];
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      const k = el.dataset.i18nHtml;
+      if (dict[k] != null) el.innerHTML = dict[k];
+    });
+    document.documentElement.lang = lang === 'zh' ? 'zh' : (lang === 'en' ? 'en' : 'ja');
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    items.forEach((it, i) => {
+      const t = it[lang];
+      const card = document.createElement(it.href ? 'a' : 'div');
+      card.className = 'card';
+      if (it.href) {
+        card.href = it.href;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+      }
+      card.innerHTML = `
+        <div class="preview">
+          <img src="${it.img}" alt="" loading="lazy" />
+        </div>
+        <div class="card-body">
+          <h2>${t.title}</h2>
+          <p>${t.desc}</p>
+          <div class="card-foot">
+            <span class="kind">${t.kind}</span>
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+    document.getElementById('count').textContent = String(items.length).padStart(2, '0');
+  }
+
+  // Lang switch
+  document.querySelectorAll('#langSeg button').forEach(b => {
+    b.addEventListener('click', () => {
+      lang = b.dataset.lang;
+      document.querySelectorAll('#langSeg button').forEach(x => x.classList.toggle('on', x === b));
+      renderShell();
+      renderGrid();
+    });
+  });
+
+  // Theme segmented control
+  document.querySelectorAll('#themeSeg button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.body.dataset.theme = b.dataset.themeVal;
+      document.querySelectorAll('#themeSeg button').forEach(x => x.classList.toggle('on', x === b));
+    });
+  });
+
+  // Menu open/close
+  const menuBtn = document.getElementById('menuBtn');
+  const menuPanel = document.getElementById('menuPanel');
+  menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = menuPanel.classList.toggle('open');
+    menuBtn.classList.toggle('open', isOpen);
+  });
+  document.addEventListener('click', (e) => {
+    if (!menuPanel.contains(e.target) && e.target !== menuBtn) {
+      menuPanel.classList.remove('open');
+      menuBtn.classList.remove('open');
+    }
+  });
+
+  renderShell();
+  renderGrid();
+</script>
+</body>
+</html>

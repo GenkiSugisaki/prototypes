@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>サービス — おくみや株式会社</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap"/>
+<link rel="stylesheet" href="shared/base.css"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div data-nav-host></div>
+<main>
+  <section class="section">
+    <div class="container">
+      <span class="eyebrow" data-i="services.eyebrow"></span>
+      <h2 style="font-size:var(--h1);margin-top:14px;line-height:1.1;max-width:18ch" data-i="services.title"></h2>
+      <p style="margin-top:24px;color:var(--ink-2);font-size:16px;max-width:60ch" data-l="家計のことから、住まいの一歩を。お気軽にご相談ください。 / From household budget to your next move — start a conversation. / 从家庭财务出发，迈出选家的第一步。"></p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="container" data-render="services"></div>
+  </section>
+
+  <section class="section" style="background:var(--paper)">
+    <div class="container">
+      <span class="eyebrow"><span data-l="ご相談の流れ / How it works / 咨询流程"></span></span>
+      <h2 style="font-size:var(--h2);margin-top:14px;margin-bottom:36px"><span data-l="ご来店から契約まで / From hello to keys / 从初次咨询到签约"></span></h2>
+      <div class="grid cols-4">
+        <div data-step="1"></div>
+        <div data-step="2"></div>
+        <div data-step="3"></div>
+        <div data-step="4"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--ink);color:var(--bg)">
+    <div class="container A-contact-grid">
+      <div>
+        <span class="eyebrow" style="color:rgba(255,255,255,.6)" data-i="contact.eyebrow"></span>
+        <h2 data-i="contact.title"></h2>
+        <a class="btn btn-light" style="margin-top:24px" href="contact.html"><span data-i="contact.cta"></span></a>
+      </div>
+    </div>
+  </section>
+</main>
+<div data-foot-host></div>
+<div data-tools-host></div>
+<script src="shared/i18n.js"></script>
+<script src="shared/app.js"></script>
+<script>
+(function(){
+  const STEPS = {
+    ja: [['お問い合わせ','電話・メール・LINEから。'],['ヒアリング','ご希望と家計の現状を伺います。'],['ご提案・内見','物件と資金計画を一緒に整理。'],['契約・お引き渡し','サインから引き渡しまで伴走。']],
+    en: [['Contact','Call, email or LINE.'],['Listening','Goals + your household plan.'],['Proposal & viewing','Match listings to the plan.'],['Signing & keys','We stay until you move in.']],
+    zh: [['咨询','电话/邮件/LINE 都可。'],['倾听','目标与家庭财务状况。'],['提案 & 看房','匹配房源与资金计划。'],['签约 & 交付','一直陪到收房。']]
+  };
+  function render(){
+    const lang = Okumiya.LS.get('lang','ja');
+    const t = window.OKUMIYA_I18N[lang];
+    document.querySelectorAll('[data-i]').forEach(el=>{
+      const path = el.dataset.i.split('.');
+      let v = t; path.forEach(p=> v = v && v[p]);
+      if (typeof v === 'string') el.textContent = v;
+    });
+    document.querySelectorAll('[data-l]').forEach(el=>{
+      const parts = el.dataset.l.split(' / ');
+      el.textContent = parts[lang==='ja'?0:lang==='en'?1:2] || parts[0];
+    });
+    const wrap = document.querySelector('[data-render="services"]');
+    if (wrap) wrap.innerHTML = t.services.items.map((s,i)=>`
+      <div class="A-svc-row">
+        <span class="num">0${i+1}</span>
+        <div><h3>${s.name}</h3><p>${s.desc}</p></div>
+        <span class="tag">${s.tag}</span>
+      </div>`).join('');
+    STEPS[lang].forEach((s,i)=>{
+      const el = document.querySelector(`[data-step="${i+1}"]`);
+      if (el) el.innerHTML = `
+        <div class="mono" style="font-size:11px;color:var(--accent);letter-spacing:.18em">STEP 0${i+1}</div>
+        <h3 style="font-size:22px;margin-top:10px">${s[0]}</h3>
+        <p style="margin-top:8px;color:var(--ink-2);font-size:14px;line-height:1.7">${s[1]}</p>`;
+    });
+  }
+  Okumiya.init({ page: 'services', render });
+})();
+</script>
+</body>
+</html>

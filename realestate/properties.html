@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>物件 — おくみや株式会社</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap"/>
+<link rel="stylesheet" href="shared/base.css"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div data-nav-host></div>
+<main>
+  <section class="section">
+    <div class="container">
+      <span class="eyebrow" data-i="properties.eyebrow"></span>
+      <h2 style="font-size:var(--h1);margin-top:14px"><span data-l="物件・事例 / Listings / 房源・案例"></span></h2>
+      <p style="margin-top:18px;color:var(--ink-2);max-width:60ch" data-i="properties.sub"></p>
+
+      <div class="A-filter" style="margin-top:32px" data-filter></div>
+      <div class="grid cols-4" data-render="properties" style="margin-top:8px"></div>
+    </div>
+  </section>
+</main>
+<div data-foot-host></div>
+<div data-tools-host></div>
+<script src="shared/i18n.js"></script>
+<script src="shared/property-images.js"></script>
+<script src="shared/app.js"></script>
+<script>
+(function(){
+  let filter = 'ALL';
+  function render(){
+    const lang = Okumiya.LS.get('lang','ja');
+    const t = window.OKUMIYA_I18N[lang];
+    document.querySelectorAll('[data-i]').forEach(el=>{
+      const path = el.dataset.i.split('.');
+      let v = t; path.forEach(p=> v = v && v[p]);
+      if (typeof v === 'string') el.textContent = v;
+    });
+    document.querySelectorAll('[data-l]').forEach(el=>{
+      const parts = el.dataset.l.split(' / ');
+      el.textContent = parts[lang==='ja'?0:lang==='en'?1:2] || parts[0];
+    });
+    const filters = ['ALL', ...new Set(t.properties.items.map(p=>p.tag.split(/[ \/]/)[0]))];
+    document.querySelector('[data-filter]').innerHTML = filters.map(f=>`
+      <button class="${filter===f?'on':''}" data-f="${f}">${f}</button>`).join('');
+    const items = filter === 'ALL' ? t.properties.items : t.properties.items.filter(p=>p.tag.startsWith(filter));
+    // properties — with real images
+    const IMG = window.OKUMIYA_PROPERTY_IMAGES || [];
+    document.querySelector('[data-render="properties"]').innerHTML = items.map((p,i)=>{
+      const src = IMG[t.properties.items.indexOf(p)];
+      const imgHTML = src
+        ? `<div class="A-prop-img" style="aspect-ratio:4/5;background-image:url('${src}');background-size:cover;background-position:center;position:relative"><span class="A-prop-tag">${p.tag}</span></div>`
+        : `<div class="ph-img" data-label="No.${String(i+1).padStart(2,'0')}" style="aspect-ratio:4/5"></div>`;
+      return `
+      <article class="A-prop">
+        ${imgHTML}
+        <div class="A-prop-meta"><span class="tag">${p.tag}</span><span class="mono" style="font-size:11px;color:var(--ink-3)">${p.area}</span></div>
+        <h3>${p.name}</h3>
+        <div class="price">${p.price}</div>
+        <div class="meta-line">${p.meta}</div>
+      </article>`;
+    }).join('');
+  }
+  document.body.addEventListener('click',(e)=>{
+    const f = e.target.closest('[data-f]');
+    if (f) { filter = f.dataset.f; render(); }
+  });
+  Okumiya.init({ page: 'properties', render });
+})();
+</script>
+</body>
+</html>
