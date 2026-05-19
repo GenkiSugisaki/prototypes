@@ -73,4 +73,4 @@ AI アプリケーションエンジニアが試作した UI・Webプロトタ�
 
 ---
 
-MIT License © 2025 Genki
+MIT
