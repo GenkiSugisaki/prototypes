@@ -216,6 +216,10 @@ const SERVICES = [
   { id: 'perm',  name: 'パーマ',            price: '¥9,900',  dur: '約120分' },
   { id: 'tr',    name: 'トリートメント',    price: '¥4,400',  dur: '約45分' },
 ];
+// プロトタイプ用の固定データ：入力・選択内容にかかわらず、確認画面と予約確定はこの内容で表示する
+const DEMO_USER = { name: '野上', phone: '090-1234-5678' };
+const DEMO_BOOKING = { name: '野上', service: 'カット', date: '6月20日（土）', time: '10:00', price: '¥6,600' };
+
 const WDAYS = ['日', '月', '火', '水', '木', '金', '土'];
 const SLOT_TIMES = ['10:00','10:30','11:00','11:30','12:00','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00'];
 
@@ -268,73 +272,55 @@ function Bubble({ m }) {
 
 /* ---------------- verification ---------------- */
 function VerifyForm({ onSent, openPolicy }) {
-  const [phone, setPhone] = useState('');
-  const [name, setName] = useState('');
-  const [agree, setAgree] = useState(false);
-  const [err, setErr] = useState('');
-  const phoneOk = /^0\d{9,10}$/.test(phone.replace(/[-\s]/g, ''));
-  const ready = phoneOk && name.trim().length > 0 && agree;
+  const [phone, setPhone] = useState(DEMO_USER.phone);
+  const [name, setName] = useState(DEMO_USER.name);
+  const [agree, setAgree] = useState(true);
   return (
     <div>
       <p className="s-eyebrow">VERIFICATION</p>
       <h3 className="s-title">ご本人確認</h3>
-      <p className="s-lead">いたずら防止のため、初回のみ<br />お客様情報の確認をお願いしております。</p>
+      <p className="s-lead">初めてご利用のお客様には、<br />SMS認証をお願いしております。</p>
       <div className="field">
         <label>お電話番号</label>
-        <input type="tel" inputMode="numeric" placeholder="090-1234-5678" value={phone}
-          onChange={e => { setPhone(e.target.value); setErr(''); }} />
-        {err && <div className="err">{err}</div>}
+        <input type="tel" inputMode="numeric" value={phone} onChange={e => setPhone(e.target.value)} />
       </div>
       <div className="field">
         <label>お名前（ニックネーム可）</label>
-        <input type="text" placeholder="例：野上、Nogami、のがみ" value={name} onChange={e => setName(e.target.value)} />
+        <input type="text" value={name} onChange={e => setName(e.target.value)} />
       </div>
       <label className="agree">
         <input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)} />
-        <span className="tx"><u onClick={e => { e.preventDefault(); openPolicy(); }}>プライバシーポリシー</u>に同意します。お電話番号は予約確認の目的にのみ使用いたします。</span>
+        <span className="tx"><u onClick={e => { e.preventDefault(); openPolicy(); }}>プライバシーポリシー</u>に同意します。お電話番号は、ご予約に関するご連絡のみに使用いたします。</span>
       </label>
+      <div className="demo-hint">※ デモのため入力済みです。そのままお進みください</div>
       <div style={{ height: 18 }}></div>
-      <button className="btn-primary" disabled={!ready}
-        onClick={() => { if (!phoneOk) { setErr('お電話番号の形式をご確認ください'); return; } onSent({ phone: phone.replace(/[-\s]/g, ''), name: name.trim() }); }}>
-        認証コードを送信
-      </button>
+      <button className="btn-primary" onClick={() => onSent()}>認証コードを送信</button>
     </div>
   );
 }
 
-function VerifyCode({ pending, onVerified, onBack }) {
-  const [code, setCode] = useState('');
-  const [err, setErr] = useState('');
-  const inputRef = useRef(null);
-  useEffect(() => { if (inputRef.current) inputRef.current.focus(); }, []);
-  useEffect(() => {
-    if (code.length === 4) {
-      if (code === '0000') { onVerified(); }
-      else { setErr('コードが一致しません。もう一度お試しください。'); setCode(''); }
-    }
-  }, [code]);
-  const masked = pending.phone.length > 4 ? '＊＊＊＊' + pending.phone.slice(-4) : pending.phone;
+function VerifyCode({ onVerified, onBack }) {
+  const masked = '090-＊＊＊＊-' + DEMO_USER.phone.slice(-4);
   return (
-    <div onClick={() => inputRef.current && inputRef.current.focus()}>
+    <div>
       <p className="s-eyebrow">SMS CODE</p>
       <h3 className="s-title">認証コード入力</h3>
-      <p className="s-lead">{masked} 宛にお送りした<br />4桁の認証コードをご入力ください。</p>
+      <p className="s-lead">{masked} 宛てにお送りした<br />4桁の認証コードをご入力ください。</p>
       <div className="code-row">
-        {[0,1,2,3].map(i => (
-          <div key={i} className={'code-cell' + (code[i] ? ' filled' : '')}>{code[i] || ''}</div>
+        {['0','0','0','0'].map((c, i) => (
+          <div key={i} className="code-cell filled">{c}</div>
         ))}
       </div>
-      <input ref={inputRef} className="code-hidden" type="tel" inputMode="numeric" maxLength={4}
-        value={code} onChange={e => { setErr(''); setCode(e.target.value.replace(/\D/g, '').slice(0, 4)); }} />
-      {err && <div className="err" style={{ textAlign: 'center', fontSize: 10.5, color: '#B4231B', marginTop: 10 }}>{err}</div>}
-      <div className="demo-hint">※ デモ用コード： 0 0 0 0</div>
+      <div className="demo-hint">※ デモのため自動入力されています</div>
+      <div style={{ height: 18 }}></div>
+      <button className="btn-primary" onClick={onVerified}>認証して次へ</button>
       <button className="btn-text" onClick={onBack}>入力内容を修正する</button>
     </div>
   );
 }
 
 /* ---------------- service ---------------- */
-function ServicePick({ sel, onSel, onNext }) {
+function ServicePick({ sel, onSel }) {
   return (
     <div>
       <p className="s-eyebrow">MENU</p>
@@ -412,7 +398,7 @@ function DateTimePick({ pick, setPick }) {
                   onClick={() => setPick(p => ({ ...p, time: s.t }))}>{s.t}</button>
               ))}
             </div>
-          ) : <div className="no-slots">この日は満席です。別の日をお選びください。</div>}
+          ) : <div className="no-slots">この日はご予約が埋まっております。別の日をお選びください。</div>}
         </div>
       )}
     </div>
@@ -420,19 +406,19 @@ function DateTimePick({ pick, setPick }) {
 }
 
 /* ---------------- confirm ---------------- */
-function ConfirmView({ user, service, pick }) {
+function ConfirmView() {
   return (
     <div>
       <p className="s-eyebrow">CONFIRM</p>
       <h3 className="s-title">ご予約内容の確認</h3>
-      <p className="s-lead">内容をご確認のうえ、確定してください。</p>
+      <p className="s-lead">内容をご確認のうえ、ご予約を確定してください。</p>
       <div className="cf-list">
-        <div className="cf-row"><span className="k">お名前</span><span className="v">{user.name} 様</span></div>
-        <div className="cf-row"><span className="k">メニュー</span><span className="v">{service.name}</span></div>
-        <div className="cf-row"><span className="k">日時</span><span className="v">{fmtDateJa(pick.date)}　{pick.time}</span></div>
-        <div className="cf-row"><span className="k">料金（目安）</span><span className="v">{service.price}</span></div>
+        <div className="cf-row"><span className="k">お名前</span><span className="v">{DEMO_BOOKING.name} 様</span></div>
+        <div className="cf-row"><span className="k">メニュー</span><span className="v">{DEMO_BOOKING.service}</span></div>
+        <div className="cf-row"><span className="k">日時</span><span className="v">{DEMO_BOOKING.date}　{DEMO_BOOKING.time}</span></div>
+        <div className="cf-row"><span className="k">料金（目安）</span><span className="v">{DEMO_BOOKING.price}</span></div>
       </div>
-      <p className="cf-note">※ ご予約の変更・キャンセルは前日までにこのトークからご連絡ください。<br />※ 確定後、Googleカレンダーに予定が登録されます。</p>
+      <p className="cf-note">※ デモのため、表示内容は固定です。<br />※ ご予約の変更・キャンセルは、前日までにこのトークからご連絡ください。<br />※ 確定すると、サロンのGoogleカレンダーに自動で登録されます。</p>
     </div>
   );
 }
@@ -464,18 +450,17 @@ function PolicyModal({ onClose }) {
 /* ---------------- LIFF sheet ---------------- */
 const STEP_LABELS = [['verify', '認証'], ['service', 'メニュー'], ['datetime', '日時'], ['confirm', '確認']];
 
-function LiffSheet({ open, stage, user, pendingUser, serviceId, pick, setPick,
+function LiffSheet({ open, stage, user, serviceId, pick, setPick,
                      onClose, onCodeSent, onVerified, onBackToForm, onSelService,
                      onToDatetime, onToConfirm, onBackTo, onFinalize, openPolicy, busy }) {
   const stepIdx = { 'verify-form': 0, 'verify-code': 0, 'service': 1, 'datetime': 2, 'confirm': 3 }[stage] ?? 0;
   const showSteps = !(user && stepIdx === 0);
-  const service = SERVICES.find(s => s.id === serviceId);
 
   let foot = null;
-  if (stage === 'service') foot = <button className="btn-primary" disabled={!serviceId} onClick={onToDatetime}>日時の選択へ</button>;
+  if (stage === 'service') foot = <button className="btn-primary" onClick={onToDatetime}>日時の選択へ</button>;
   if (stage === 'datetime') foot = (
     <div>
-      <button className="btn-primary" disabled={!(pick.date && pick.time)} onClick={onToConfirm}>内容の確認へ</button>
+      <button className="btn-primary" onClick={onToConfirm}>内容の確認へ</button>
       <button className="btn-text" onClick={() => onBackTo('service')}>メニューを選び直す</button>
     </div>
   );
@@ -503,11 +488,11 @@ function LiffSheet({ open, stage, user, pendingUser, serviceId, pick, setPick,
       </div>
       <div className="sheet-body">
         {stage === 'verify-form' && <VerifyForm onSent={onCodeSent} openPolicy={openPolicy} />}
-        {stage === 'verify-code' && <VerifyCode pending={pendingUser} onVerified={onVerified} onBack={onBackToForm} />}
-        {stage === 'checking' && <div className="center-pad"><div className="spin"></div><p className="s-lead">認証状態を確認しています…</p></div>}
-        {stage === 'service' && <ServicePick sel={serviceId} onSel={onSelService} onNext={onToDatetime} />}
+        {stage === 'verify-code' && <VerifyCode onVerified={onVerified} onBack={onBackToForm} />}
+        {stage === 'checking' && <div className="center-pad"><div className="spin"></div><p className="s-lead">ご登録状況を確認しています…</p></div>}
+        {stage === 'service' && <ServicePick sel={serviceId} onSel={onSelService} />}
         {stage === 'datetime' && <DateTimePick pick={pick} setPick={setPick} />}
-        {stage === 'confirm' && user && service && <ConfirmView user={user} service={service} pick={pick} />}
+        {stage === 'confirm' && <ConfirmView />}
       </div>
       {foot && open && <div className="sheet-foot">{foot}</div>}
     </div>
@@ -522,12 +507,11 @@ function App() {
   });
   const [messages, setMessages] = useState(() => [
     { id: ++msgId, type: 'divider', text: '今日' },
-    { id: ++msgId, from: 'bot', text: 'Nogami Salon へようこそ。\n友だち追加ありがとうございます。\n\nご予約は下の「ご予約」ボタンからどうぞ。', time: nowTime() },
+    { id: ++msgId, from: 'bot', text: '友だち追加ありがとうございます。\nNogami Salon 公式アカウントです。\n\nご予約は、下の「ご予約はこちら」ボタンからどうぞ。', time: nowTime() },
   ]);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [stage, setStage] = useState('verify-form');
-  const [pendingUser, setPendingUser] = useState(null);
-  const [serviceId, setServiceId] = useState(null);
+  const [serviceId, setServiceId] = useState('cut');
   const [pick, setPick] = useState({ date: null, time: null });
   const [policyOpen, setPolicyOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -550,52 +534,48 @@ function App() {
   /* step 1+2: tap reserve → check verification */
   const startReserve = () => {
     addMsg({ from: 'user', text: 'ご予約' });
-    setServiceId(null);
+    setServiceId('cut');
     setPick({ date: null, time: null });
     setStage('checking');
     setSheetOpen(true);
     setTimeout(() => {
       if (user) {
-        botSay(user.name + ' 様、おかえりなさいませ。\n認証済みのため、そのままご予約いただけます。', 500);
+        botSay(user.name + ' 様、いつもご利用ありがとうございます。\nこのままご予約にお進みいただけます。', 500);
         setStage('service');
       } else {
-        botSay('はじめてのご予約ですね。\nいたずら予約防止のため、はじめにご本人確認をお願いいたします。', 500);
+        botSay('はじめてのご予約ですね。\n無断キャンセル防止のため、初回のみご本人確認をお願いしております。', 500);
         setStage('verify-form');
       }
     }, 900);
   };
 
-  const handleCodeSent = (info) => { setPendingUser(info); setStage('verify-code'); };
+  const handleCodeSent = () => { setStage('verify-code'); };
   const handleVerified = () => {
-    const u = pendingUser;
-    setUser(u);
-    try { localStorage.setItem(LS_KEY, JSON.stringify(u)); } catch (e) {}
-    botSay(u.name + ' 様、ご本人確認ありがとうございました。\nそれでは、メニューをお選びください。', 600);
+    setUser(DEMO_USER);
+    try { localStorage.setItem(LS_KEY, JSON.stringify(DEMO_USER)); } catch (e) {}
+    botSay(DEMO_USER.name + ' 様、認証が完了いたしました。\nそれでは、ご希望のメニューをお選びください。', 600);
     setStage('service');
   };
 
-  /* step 5: finalize */
+  /* step 5: finalize — プロトタイプのため予約内容は DEMO_BOOKING 固定 */
   const finalize = () => {
-    const service = SERVICES.find(s => s.id === serviceId);
     setBusy(true);
     setTimeout(() => {
       setBusy(false);
       setSheetOpen(false);
-      const dateStr = fmtDateJa(pick.date);
-      addMsg({ from: 'user', text: '予約を確定しました' });
       setTimeout(() => {
-        addMsg({ type: 'card', data: { name: user.name, service: service.name, date: dateStr, time: pick.time, price: service.price } });
-        botSay(user.name + ' 様、ご予約ありがとうございます。\n' + dateStr + ' ' + pick.time + ' に ' + service.name + ' にてお待ちしております。\n\n前日にこちらからリマインドをお送りいたします。当日お会いできるのを楽しみにしております。', 1100);
+        addMsg({ type: 'card', data: DEMO_BOOKING });
+        botSay(DEMO_BOOKING.name + ' 様、ご予約ありがとうございます。\n' + DEMO_BOOKING.date + ' ' + DEMO_BOOKING.time + 'より、' + DEMO_BOOKING.service + 'のご予約を承りました。\n\n前日にリマインドのメッセージをお送りいたします。ご来店を心よりお待ちしております。', 1100);
       }, 350);
     }, 1100);
   };
 
   const resetDemo = () => {
     try { localStorage.removeItem(LS_KEY); } catch (e) {}
-    setUser(null); setSheetOpen(false); setServiceId(null); setPick({ date: null, time: null });
+    setUser(null); setSheetOpen(false); setServiceId('cut'); setPick({ date: null, time: null });
     setMessages([
       { id: ++msgId, type: 'divider', text: '今日' },
-      { id: ++msgId, from: 'bot', text: 'Nogami Salon へようこそ。\n友だち追加ありがとうございます。\n\nご予約は下の「ご予約」ボタンからどうぞ。', time: nowTime() },
+      { id: ++msgId, from: 'bot', text: '友だち追加ありがとうございます。\nNogami Salon 公式アカウントです。\n\nご予約は、下の「ご予約はこちら」ボタンからどうぞ。', time: nowTime() },
     ]);
   };
 
@@ -633,14 +613,14 @@ function App() {
         </button>
         <div className="rm-sub">
           <button onClick={() => botSay('営業時間：火〜土 10:00 − 19:00\n定休日：毎週月曜', 600)}>営業時間</button>
-          <button onClick={() => botSay('カット ¥6,600 〜\nカラー ¥8,800 〜\nパーマ ¥9,900 〜\nトリートメント ¥4,400 〜\n\n詳しくは「ご予約」からメニューをご覧ください。', 600)}>メニュー</button>
-          <button onClick={() => botSay('東京都渋谷区◯◯ 1-2-3\n◯◯駅 徒歩5分\n\nお車でお越しの際は近隣のコインパーキングをご利用ください。', 600)}>アクセス</button>
+          <button onClick={() => botSay('カット ¥6,600 〜\nカラー ¥8,800 〜\nパーマ ¥9,900 〜\nトリートメント ¥4,400 〜\n\n各メニューの詳細は、ご予約の際にご確認いただけます。', 600)}>メニュー</button>
+          <button onClick={() => botSay('東京都渋谷区◯◯ 1-2-3\n◯◯駅から徒歩5分\n\nお車でお越しの際は、近隣のコインパーキングをご利用ください。', 600)}>アクセス</button>
         </div>
       </nav>
 
       <div className={'sheet-dim' + (sheetOpen ? ' open' : '')} onClick={() => setSheetOpen(false)}></div>
       <LiffSheet
-        open={sheetOpen} stage={stage} user={user} pendingUser={pendingUser}
+        open={sheetOpen} stage={stage} user={user}
         serviceId={serviceId} pick={pick} setPick={setPick}
         onClose={() => setSheetOpen(false)}
         onCodeSent={handleCodeSent}
