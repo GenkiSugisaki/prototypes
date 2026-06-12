@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<title>のがみサロン — NOGAMI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#ffffff" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Shippori+Mincho:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #111111;
+    --paper: #ffffff;
+    --line: #e6e6e6;
+    --muted: #777777;
+    --faint: #aaaaaa;
+    --latin: 'Cormorant Garamond', 'Times New Roman', serif;
+    --jp: 'Shippori Mincho', 'Hiragino Mincho ProN', serif;
+    --sans: 'Helvetica Neue', Helvetica, Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: var(--sans);
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1, h2, h3, p, dd { text-wrap: pretty; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+  img { filter: grayscale(1) contrast(1.04); }
+
+  /* ── primitives ── */
+  .cap {
+    font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ulink {
+    display: inline-block;
+    font-size: 11px; letter-spacing: 0.26em; text-transform: uppercase;
+    text-decoration: underline; text-underline-offset: 6px;
+    color: var(--ink); background: none; border: none; padding: 0;
+  }
+  .ph {
+    position: relative; overflow: hidden;
+    background: repeating-linear-gradient(45deg, #ececec 0 14px, #f4f4f4 14px 28px);
+  }
+  .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* ── hero ── */
+  .hero { position: relative; height: 100svh; min-height: 560px; background: #1a1a1a; }
+  .hero .ph { position: absolute; inset: 0; background: #1a1a1a; }
+  .hero .ph img { opacity: 0.78; }
+  .hero-veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.12) 40%, rgba(0,0,0,0.42)); }
+  .hero-overlay {
+    position: absolute; inset: 0; color: #fff;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 28px 24px 40px;
+  }
+  .hero-nav {
+    display: flex; justify-content: center; gap: 38px;
+    font-size: 11px; letter-spacing: 0.28em;
+  }
+  .hero-nav a { opacity: 0.92; transition: opacity 0.2s; }
+  .hero-nav a:hover { opacity: 0.6; }
+  .wordmark { text-align: center; }
+  .wordmark h1 {
+    font-family: var(--latin); font-weight: 500;
+    font-size: clamp(44px, 8vw, 76px);
+    letter-spacing: 0.3em; text-indent: 0.3em;
+    margin: 0; line-height: 1.1;
+  }
+  .wordmark .jp-name { font-family: var(--jp); font-weight: 500; font-size: clamp(15px, 2.2vw, 19px); letter-spacing: 0.6em; text-indent: 0.6em; margin-top: 14px; }
+  .wordmark .rule { width: 48px; height: 1px; background: rgba(255,255,255,0.6); margin: 20px auto; }
+  .wordmark .cities { font-size: 11px; letter-spacing: 0.32em; }
+  .hero-cta {
+    text-align: center; font-size: 11px; letter-spacing: 0.26em; color: #fff;
+    text-decoration: underline; text-underline-offset: 6px;
+    align-self: center;
+  }
+  .menu-btn {
+    position: absolute; top: 20px; right: 20px; z-index: 5;
+    width: 44px; height: 44px; border: 1px solid rgba(255,255,255,0.45);
+    background: rgba(0,0,0,0.15); border-radius: 999px;
+    display: none; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    padding: 0;
+  }
+  .menu-btn span { width: 15px; height: 1px; background: #fff; }
+
+  /* ── drawer (mobile) ── */
+  .drawer-bg {
+    position: fixed; inset: 0; background: rgba(17,17,17,0.45);
+    opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 40;
+  }
+  .drawer-bg.open { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; width: 86%; max-width: 360px;
+    background: var(--paper);
+    transform: translateX(100%); transition: transform 0.32s cubic-bezier(.2,.8,.2,1);
+    z-index: 50; display: flex; flex-direction: column;
+    padding: 28px 28px 40px;
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+  .drawer-head .bm { font-family: var(--latin); font-size: 18px; letter-spacing: 0.26em; }
+  .drawer-close { background: none; border: none; font-size: 10px; letter-spacing: 0.24em; color: var(--muted); padding: 6px 0; text-transform: uppercase; }
+  .drawer nav { display: flex; flex-direction: column; padding-top: 10px; }
+  .drawer nav a {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 18px 0; border-bottom: 1px solid var(--line);
+    font-family: var(--jp); font-size: 20px;
+  }
+  .drawer nav a small { font-size: 10px; letter-spacing: 0.22em; color: var(--faint); font-family: var(--sans); }
+  .drawer-foot { margin-top: auto; padding-top: 28px; }
+
+  /* ── colour work (唯一彩色窗口) ── */
+  .cw { padding: 90px 48px 0; }
+  .cw-head { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; margin-bottom: 28px; }
+  .cw-hint { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--faint); }
+  .cw-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+  .cw-grid .ph { aspect-ratio: 3 / 4; margin: 0; cursor: pointer; }
+  .cw-grid .ph img { transition: filter 0.6s ease; }
+  .cw-grid .ph:hover img, .cw-grid .ph.reveal img { filter: grayscale(0) contrast(1); }
+  .cw-grid .ph figcaption {
+    position: absolute; left: 12px; bottom: 12px;
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #fff;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.55);
+    pointer-events: none;
+  }
+
+  /* ── statement ── */
+  .statement { padding: 96px 24px; text-align: center; }
+  .statement .quote {
+    font-family: var(--jp); font-weight: 500;
+    font-size: clamp(24px, 4vw, 34px); line-height: 1.7;
+    margin: 0 0 28px;
+  }
+  .statement .quote em { font-family: var(--latin); font-style: italic; letter-spacing: 0.04em; }
+  .statement .body { font-size: 13px; color: var(--muted); line-height: 2.1; max-width: 540px; margin: 0 auto; }
+
+  /* ── concept rows ── */
+  .concept { padding: 0 24px 96px; max-width: 760px; margin: 0 auto; }
+  .concept .row {
+    display: grid; grid-template-columns: 44px 1fr; gap: 20px;
+    padding: 26px 0; border-top: 1px solid var(--line);
+    text-align: left; align-items: baseline;
+  }
+  .concept .row:last-child { border-bottom: 1px solid var(--line); }
+  .concept .row .n { font-family: var(--latin); font-size: 15px; letter-spacing: 0.2em; color: var(--faint); }
+  .concept .row h3 { font-family: var(--jp); font-weight: 500; font-size: 18px; margin: 0 0 8px; letter-spacing: 0.08em; }
+  .concept .row p { font-size: 13px; line-height: 1.9; color: var(--muted); margin: 0; }
+
+  /* ── editorial split: photo + menu ── */
+  .editorial { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
+  .editorial .ph { min-height: 560px; }
+  .svc-col { padding: 72px 72px; display: flex; flex-direction: column; justify-content: center; }
+  .svc-col .eyebrow { margin-bottom: 6px; }
+  .svc-row {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+    padding: 22px 0; border-bottom: 1px solid var(--line);
+  }
+  .svc-row .nm { font-family: var(--jp); font-weight: 500; font-size: 21px; letter-spacing: 0.06em; }
+  .svc-row .nm small { display: block; font-family: var(--sans); font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--faint); margin-top: 5px; }
+  .svc-row .pr { font-size: 12px; letter-spacing: 0.14em; color: #555; white-space: nowrap; }
+  .svc-note { margin-top: 18px; font-size: 10px; letter-spacing: 0.12em; color: var(--faint); }
+  .svc-col .more { margin-top: 26px; align-self: flex-start; }
+
+  /* ── stylist ── */
+  .stylist { padding: 110px 24px; }
+  .stylist-inner { max-width: 880px; margin: 0 auto; display: grid; grid-template-columns: 340px 1fr; gap: 64px; align-items: center; }
+  .stylist .ph { aspect-ratio: 3 / 4; }
+  .stylist h2 { font-family: var(--jp); font-weight: 500; font-size: 34px; letter-spacing: 0.14em; margin: 14px 0 8px; }
+  .stylist .role { font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--faint); }
+  .stylist .bio { font-size: 13px; line-height: 2.1; color: var(--muted); margin: 26px 0 30px; white-space: pre-line; }
+  .facts { margin: 0; }
+  .fact { display: grid; grid-template-columns: 110px 1fr; padding: 13px 0; border-top: 1px solid var(--line); font-size: 13px; align-items: baseline; }
+  .fact:last-child { border-bottom: 1px solid var(--line); }
+  .fact dt { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--faint); margin: 0; }
+  .fact dd { margin: 0; color: var(--ink); letter-spacing: 0.04em; }
+
+  /* ── gallery ── */
+  .gallery { padding: 96px 48px 110px; border-top: 1px solid var(--line); text-align: center; }
+  .gallery h2.gt { font-family: var(--latin); font-weight: 500; font-size: 38px; letter-spacing: 0.18em; text-indent: 0.18em; margin: 10px 0 0; }
+  .gallery-tabs {
+    display: flex; justify-content: center; gap: 0; flex-wrap: wrap;
+    margin: 36px 0 32px;
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  }
+  .gallery-tabs button {
+    background: none; border: none; padding: 14px 20px;
+    font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--faint);
+  }
+  .gallery-tabs button.on { color: var(--ink); text-decoration: underline; text-underline-offset: 6px; }
+  .gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .gallery-grid .ph { aspect-ratio: 4 / 5; }
+  .gallery-grid .ph img { transition: filter 0.6s ease; }
+  .gallery-grid.color-mode .ph img { filter: grayscale(0) contrast(1); }
+  .gallery-grid .ph figcaption {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 10px 12px;
+    font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: #fff;
+    background: linear-gradient(0deg, rgba(0,0,0,0.45), transparent);
+    text-align: left;
+  }
+  .gallery .cap-note { display: block; margin-top: 28px; font-size: 10px; letter-spacing: 0.2em; color: var(--faint); }
+
+  /* ── booking ── */
+  .booking { padding: 110px 24px; border-top: 1px solid var(--line); text-align: center; }
+  .booking h2 { font-family: var(--jp); font-weight: 500; font-size: 30px; letter-spacing: 0.2em; margin: 14px 0 26px; }
+  .booking .body { font-size: 13px; color: var(--muted); line-height: 2.1; max-width: 480px; margin: 0 auto 44px; }
+  .book-actions { display: flex; flex-direction: column; align-items: center; gap: 36px; }
+  .line-cta {
+    display: inline-block;
+    background: var(--ink); color: var(--paper);
+    padding: 18px 44px;
+    font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
+    transition: opacity 0.2s;
+  }
+  .line-cta:hover { opacity: 0.82; }
+  .line-note { font-size: 10px; letter-spacing: 0.16em; color: var(--faint); margin-top: 14px; display: block; }
+  .qr-wrap { display: flex; align-items: center; gap: 18px; }
+  .qr-box {
+    width: 96px; height: 96px; border: 1px solid var(--line);
+    background: #fff; padding: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qr-wrap small { font-size: 10px; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; }
+
+  /* contact accordion */
+  .contact-block { max-width: 560px; margin: 72px auto 0; text-align: left; border-top: 1px solid var(--line); }
+  .contact-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 26px 0; cursor: pointer;
+  }
+  .contact-head h3 { font-family: var(--jp); font-weight: 500; font-size: 19px; letter-spacing: 0.1em; margin: 0; }
+  .contact-head .sub { display: block; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--faint); margin-top: 6px; }
+  .contact-toggle {
+    width: 38px; height: 38px; border-radius: 999px; border: 1px solid var(--line);
+    background: transparent; font-size: 16px; line-height: 1; color: var(--ink);
+    transition: transform 0.25s;
+  }
+  .contact-block.open .contact-toggle { transform: rotate(45deg); }
+  .contact-body { max-height: 0; overflow: hidden; transition: max-height 0.45s ease; }
+  .contact-block.open .contact-body { max-height: 2400px; }
+  .contact-body-inner { padding: 4px 0 40px; }
+  .contact-body-inner .intro { font-size: 12.5px; line-height: 1.9; color: var(--muted); margin: 0 0 28px; }
+
+  form.book { display: flex; flex-direction: column; gap: 26px; }
+  .field label { display: block; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .field input, .field textarea {
+    width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--line);
+    padding: 12px 0; font-family: var(--sans); font-size: 15px; color: var(--ink); outline: none;
+    border-radius: 0;
+  }
+  .field input:focus, .field textarea:focus { border-bottom-color: var(--ink); }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .chip {
+    padding: 10px 18px; background: transparent; color: var(--ink);
+    font-size: 12px; letter-spacing: 0.08em;
+    border: 1px solid var(--line); border-radius: 0;
+    white-space: nowrap;
+  }
+  .chip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .submit-btn {
+    margin-top: 6px; padding: 18px 22px;
+    background: var(--ink); color: var(--paper); border: none;
+    font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
+    width: 100%;
+  }
+
+  /* ── access ── */
+  .access { border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr; }
+  .access-col { padding: 96px 72px; }
+  .access h2 { font-family: var(--jp); font-weight: 500; font-size: 28px; letter-spacing: 0.2em; margin: 12px 0 36px; }
+  .access-row { display: grid; grid-template-columns: 110px 1fr; gap: 18px; padding: 18px 0; border-top: 1px solid var(--line); }
+  .access-row:last-child { border-bottom: 1px solid var(--line); }
+  .access-row dt { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--faint); margin: 0; }
+  .access-row dd { margin: 0; font-size: 13.5px; line-height: 1.9; white-space: pre-line; letter-spacing: 0.04em; }
+  .access-row dd a { text-decoration: underline; text-underline-offset: 4px; }
+  .map { position: relative; overflow: hidden; background: #f7f7f7; border-left: 1px solid var(--line); min-height: 420px; }
+
+  /* ── press ── */
+  .press {
+    border-top: 1px solid var(--line);
+    padding: 36px 24px; display: flex; align-items: center; justify-content: center; gap: 48px; flex-wrap: wrap;
+  }
+  .press .lbl { font-size: 10px; letter-spacing: 0.26em; color: var(--faint); text-transform: uppercase; }
+  .press .mk { font-family: var(--latin); font-size: 20px; letter-spacing: 0.18em; color: #666; }
+
+  /* ── footer ── */
+  footer.foot {
+    background: var(--ink); color: #999;
+    padding: 40px 48px;
+    display: flex; justify-content: space-between; align-items: baseline; gap: 24px; flex-wrap: wrap;
+    font-size: 11px; letter-spacing: 0.14em;
+  }
+  footer.foot .fm { font-family: var(--latin); font-size: 16px; letter-spacing: 0.3em; color: #fff; }
+  footer.foot a { text-decoration: underline; text-underline-offset: 4px; }
+
+  .toast {
+    position: fixed; left: 50%; top: 24px; transform: translateX(-50%) translateY(calc(-100% - 32px));
+    background: var(--ink); color: var(--paper);
+    padding: 14px 24px;
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    transition: transform 0.35s; z-index: 60;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── responsive ── */
+  @media (max-width: 899px) {
+    .hero-nav { display: none; }
+    .menu-btn { display: flex; }
+    .editorial { grid-template-columns: 1fr; }
+    .editorial .ph { min-height: 0; aspect-ratio: 4 / 3; }
+    .svc-col { padding: 64px 24px; }
+    .cw { padding: 72px 20px 0; }
+    .cw-head { flex-direction: column; gap: 8px; }
+    .cw-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stylist { padding: 88px 24px; }
+    .stylist-inner { grid-template-columns: 1fr; gap: 40px; max-width: 480px; }
+    .gallery { padding: 88px 20px 96px; }
+    .gallery-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .access { grid-template-columns: 1fr; }
+    .access-col { padding: 80px 24px; }
+    .map { border-left: none; border-top: 1px solid var(--line); aspect-ratio: 1 / 1; min-height: 0; }
+    footer.foot { flex-direction: column; gap: 14px; padding: 36px 24px; }
+    .row-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<template id="__bundler_thumbnail" data-bg-color="#111111">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#111111"/>
+    <text x="600" y="400" text-anchor="middle" font-family="serif" font-size="110" letter-spacing="30" fill="#ffffff">NOGAMI</text>
+    <rect x="576" y="450" width="48" height="2" fill="#ffffff" opacity="0.6"/>
+    <text x="600" y="520" text-anchor="middle" font-family="serif" font-size="34" letter-spacing="14" fill="#ffffff">のがみサロン</text>
+  </svg>
+</template>
+
+<!-- ── HERO ── -->
+<section class="hero" id="top" data-screen-label="Hero">
+  <div class="ph"><img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1800&q=80&auto=format&fit=crop" alt="サロン内観" /></div>
+  <div class="hero-veil"></div>
+  <button class="menu-btn" id="menuBtn" aria-label="Menu"><span></span><span></span></button>
+  <div class="hero-overlay">
+    <nav class="hero-nav">
+      <a href="#concept">CONCEPT</a>
+      <a href="#stylist">STYLIST</a>
+      <a href="#menu">MENU</a>
+      <a href="#gallery">GALLERY</a>
+      <a href="#access">ACCESS</a>
+    </nav>
+    <div class="wordmark">
+      <h1>NOGAMI</h1>
+      <div class="jp-name">のがみサロン</div>
+      <div class="rule"></div>
+      <div class="cities">ITSUKAICHI · TOKYO · 完全予約制</div>
+    </div>
+    <a class="hero-cta" href="#booking">ご予約 — BOOK AN APPOINTMENT</a>
+  </div>
+</section>
+
+<!-- ── DRAWER (mobile) ── -->
+<div class="drawer-bg" id="drawerBg"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <div class="bm">NOGAMI</div>
+    <button class="drawer-close" id="drawerClose">Close ✕</button>
+  </div>
+  <nav>
+    <a href="#concept">コンセプト<small>01</small></a>
+    <a href="#stylist">店主<small>02</small></a>
+    <a href="#menu">メニュー<small>03</small></a>
+    <a href="#gallery">ギャラリー<small>04</small></a>
+    <a href="#booking">ご予約<small>05</small></a>
+    <a href="#access">アクセス<small>06</small></a>
+  </nav>
+  <div class="drawer-foot">
+    <a href="#booking" class="ulink" id="drawerCta">ご予約 — Book an appointment</a>
+  </div>
+</aside>
+
+<!-- ── COLOUR WORK — 全站唯一彩色窗口 ── -->
+<section class="cw" id="colour" data-screen-label="Colour Work">
+  <div class="cw-head">
+    <span class="cap">Colour Work — カラー</span>
+    <span class="cw-hint">Hover to reveal colour</span>
+  </div>
+  <div class="cw-grid" id="cwGrid">
+    <figure class="ph"><img src="https://images.unsplash.com/photo-1554519515-242161756769?w=600&q=80&auto=format&fit=crop" alt="カラー作品 コッパー" loading="lazy" /><figcaption>Copper</figcaption></figure>
+    <figure class="ph"><img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&q=80&auto=format&fit=crop" alt="カラー作品 ハニー" loading="lazy" /><figcaption>Honey</figcaption></figure>
+    <figure class="ph"><img src="https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=600&q=80&auto=format&fit=crop" alt="カラー作品 ローズ" loading="lazy" /><figcaption>Rose</figcaption></figure>
+    <figure class="ph"><img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=600&q=80&auto=format&fit=crop" alt="カラー作品 フォググレー" loading="lazy" /><figcaption>Fog Grey</figcaption></figure>
+    <figure class="ph"><img src="https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=600&q=80&auto=format&fit=crop" alt="カラー作品 エスプレッソ" loading="lazy" /><figcaption>Espresso</figcaption></figure>
+    <figure class="ph"><img src="https://images.unsplash.com/photo-1525134479668-1bee5c7c6845?w=600&q=80&auto=format&fit=crop" alt="カラー作品 ライラック" loading="lazy" /><figcaption>Lilac</figcaption></figure>
+  </div>
+</section>
+
+<!-- ── STATEMENT / CONCEPT ── -->
+<section class="statement" id="concept" data-screen-label="Concept">
+  <p class="quote">髪と、ゆっくり向き合う。<br /><em>Quiet luxury, practiced daily.</em></p>
+  <p class="body">東京・五日市の路地裏にある、1日4組までの完全予約制プライベートサロン。カウンセリングから仕上げまで、最初から最後まで一人のスタイリストが担当します。誰にも気を遣わず、自分のための時間を過ごせる場所です。</p>
+</section>
+
+<div class="concept">
+  <div class="row">
+    <span class="n">01</span>
+    <div><h3>完全予約制</h3><p>他のお客様と重ならない、貸切のような空間。</p></div>
+  </div>
+  <div class="row">
+    <span class="n">02</span>
+    <div><h3>丁寧なカウンセリング</h3><p>毎回20分以上。髪質・ライフスタイルから一緒に考えます。</p></div>
+  </div>
+  <div class="row">
+    <span class="n">03</span>
+    <div><h3>一貫担当</h3><p>施術中もスタッフが入れ替わらない安心感。</p></div>
+  </div>
+</div>
+
+<!-- ── EDITORIAL: PHOTO + MENU ── -->
+<section class="editorial" id="menu" data-screen-label="Menu">
+  <div class="ph"><img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1200&q=80&auto=format&fit=crop" alt="スタイル — エディトリアル" loading="lazy" /></div>
+  <div class="svc-col">
+    <div class="cap eyebrow">Menu — メニュー</div>
+    <div class="svc-row"><span class="nm">カット<small>Cut · 約70分</small></span><span class="pr">¥6,600</span></div>
+    <div class="svc-row"><span class="nm">カラー<small>Color · 白髪染め / ハイライト</small></span><span class="pr">FROM ¥9,900</span></div>
+    <div class="svc-row"><span class="nm">パーマ<small>Perm · デジタル / コールド</small></span><span class="pr">FROM ¥11,000</span></div>
+    <div class="svc-row"><span class="nm">トリートメント<small>Treatment · 髪質改善</small></span><span class="pr">FROM ¥3,300</span></div>
+    <div class="svc-row"><span class="nm">ヘッドスパ<small>Head Spa · 30分 炭酸</small></span><span class="pr">¥4,400</span></div>
+    <div class="svc-row"><span class="nm">メンズ<small>Men's · スタイリング込</small></span><span class="pr">¥5,500</span></div>
+    <span class="svc-note">※ 表示価格は税込。シャンプー・ブロー込み。</span>
+    <a class="ulink more" href="#booking">ご予約へ →</a>
+  </div>
+</section>
+
+<!-- ── STYLIST ── -->
+<section class="stylist" id="stylist" data-screen-label="Stylist">
+  <div class="stylist-inner">
+    <div class="ph"><img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=900&q=80&auto=format&fit=crop" alt="野上太郎 ポートレート" loading="lazy" /></div>
+    <div>
+      <span class="cap">Stylist — 店主</span>
+      <h2>野上 太郎</h2>
+      <div class="role">Taro Nogami · Owner Stylist</div>
+      <p class="bio">表参道のサロンで12年、青山で3年勤務。2026年、地元・五日市に「のがみサロン」をオープン。
+
+「髪を切ることは、その人の日々の生活と少し向き合うこと。」をコンセプトに、暮らしに馴染むスタイルを提案します。</p>
+      <dl class="facts">
+        <div class="fact"><dt>美容師歴</dt><dd>15年</dd></div>
+        <div class="fact"><dt>得意</dt><dd>ショート / ナチュラルカラー</dd></div>
+        <div class="fact"><dt>資格</dt><dd>美容師 / JHCA カラーリスト</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ── GALLERY ── -->
+<section class="gallery" id="gallery" data-screen-label="Gallery">
+  <span class="cap">Gallery — スタイル</span>
+  <h2 class="gt">STYLES</h2>
+  <div class="gallery-tabs" id="galleryTabs">
+    <button class="on" data-tab="all">All</button>
+    <button data-tab="short">Short</button>
+    <button data-tab="medium">Medium</button>
+    <button data-tab="long">Long</button>
+    <button data-tab="color">Color</button>
+    <button data-tab="mens">Men's</button>
+  </div>
+  <div class="gallery-grid" id="galleryGrid">
+    <figure class="ph" style="margin: 0;" data-cat="short mens"><img src="https://images.unsplash.com/photo-1605980776566-0486c3ac7617?w=700&q=80&auto=format&fit=crop" alt="" loading="lazy" /><figcaption>Short · A</figcaption></figure>
+    <figure class="ph" style="margin: 0;" data-cat="color long"><img src="https://images.unsplash.com/photo-1554519515-242161756769?w=700&q=80&auto=format&fit=crop" alt="" loading="lazy" /><figcaption>Color · B</figcaption></figure>
+    <figure class="ph" style="margin: 0;" data-cat="long"><img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=700&q=80&auto=format&fit=crop" alt="" loading="lazy" /><figcaption>Long · C</figcaption></figure>
+    <figure class="ph" style="margin: 0;" data-cat="mens short"><img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=700&q=80&auto=format&fit=crop" alt="" loading="lazy" /><figcaption>Men's · D</figcaption></figure>
+    <figure class="ph" style="margin: 0;" data-cat="medium"><img src="https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=700&q=80&auto=format&fit=crop" alt="" loading="lazy" /><figcaption>Medium · E</figcaption></figure>
+    <figure class="ph" style="margin: 0;" data-cat="medium"><img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=700&q=80&auto=format&fit=crop" alt="" loading="lazy" /><figcaption>Medium · F</figcaption></figure>
+    <figure class="ph" style="margin: 0;" data-cat="color long"><img src="https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=700&q=80&auto=format&fit=crop" alt="" loading="lazy" /><figcaption>Color · G</figcaption></figure>
+    <figure class="ph" style="margin: 0;" data-cat=""><img src="https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?w=700&q=80&auto=format&fit=crop" alt="" loading="lazy" /><figcaption>Head Spa</figcaption></figure>
+  </div>
+  <small class="cap-note">— 撮影：店内 / 自然光</small>
+</section>
+
+<!-- ── BOOKING ── -->
+<section class="booking" id="booking" data-screen-label="Booking">
+  <span class="cap">Reservation — ご予約</span>
+  <h2>ご予約</h2>
+  <p class="body">ご予約はLINE公式アカウントにて、24時間いつでも承っております。友だち追加後、トーク画面の予約メニューからご希望の日時をお選びください。</p>
+  <div class="book-actions">
+    <div>
+      <!-- 公開時に実際の友だち追加URL（https://lin.ee/…）へ差し替え -->
+      <a class="line-cta" href="https://lin.ee/" target="_blank" rel="noopener">LINEで友だち追加</a>
+      <span class="line-note">メニュー選択からそのまま予約完了・24時間受付</span>
+    </div>
+    <div class="qr-wrap">
+      <div class="qr-box"><svg viewBox="0 0 21 21" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="LINE QR sample"><g fill="#111111"><rect x="0" y="0" width="1" height="1"></rect><rect x="1" y="0" width="1" height="1"></rect><rect x="2" y="0" width="1" height="1"></rect><rect x="3" y="0" width="1" height="1"></rect><rect x="4" y="0" width="1" height="1"></rect><rect x="5" y="0" width="1" height="1"></rect><rect x="6" y="0" width="1" height="1"></rect><rect x="14" y="0" width="1" height="1"></rect><rect x="15" y="0" width="1" height="1"></rect><rect x="16" y="0" width="1" height="1"></rect><rect x="17" y="0" width="1" height="1"></rect><rect x="18" y="0" width="1" height="1"></rect><rect x="19" y="0" width="1" height="1"></rect><rect x="20" y="0" width="1" height="1"></rect><rect x="0" y="1" width="1" height="1"></rect><rect x="6" y="1" width="1" height="1"></rect><rect x="10" y="1" width="1" height="1"></rect><rect x="11" y="1" width="1" height="1"></rect><rect x="12" y="1" width="1" height="1"></rect><rect x="14" y="1" width="1" height="1"></rect><rect x="20" y="1" width="1" height="1"></rect><rect x="0" y="2" width="1" height="1"></rect><rect x="2" y="2" width="1" height="1"></rect><rect x="3" y="2" width="1" height="1"></rect><rect x="4" y="2" width="1" height="1"></rect><rect x="6" y="2" width="1" height="1"></rect><rect x="8" y="2" width="1" height="1"></rect><rect x="12" y="2" width="1" height="1"></rect><rect x="14" y="2" width="1" height="1"></rect><rect x="16" y="2" width="1" height="1"></rect><rect x="17" y="2" width="1" height="1"></rect><rect x="18" y="2" width="1" height="1"></rect><rect x="20" y="2" width="1" height="1"></rect><rect x="0" y="3" width="1" height="1"></rect><rect x="2" y="3" width="1" height="1"></rect><rect x="3" y="3" width="1" height="1"></rect><rect x="4" y="3" width="1" height="1"></rect><rect x="6" y="3" width="1" height="1"></rect><rect x="8" y="3" width="1" height="1"></rect><rect x="9" y="3" width="1" height="1"></rect><rect x="14" y="3" width="1" height="1"></rect><rect x="16" y="3" width="1" height="1"></rect><rect x="17" y="3" width="1" height="1"></rect><rect x="18" y="3" width="1" height="1"></rect><rect x="20" y="3" width="1" height="1"></rect><rect x="0" y="4" width="1" height="1"></rect><rect x="2" y="4" width="1" height="1"></rect><rect x="3" y="4" width="1" height="1"></rect><rect x="4" y="4" width="1" height="1"></rect><rect x="6" y="4" width="1" height="1"></rect><rect x="9" y="4" width="1" height="1"></rect><rect x="11" y="4" width="1" height="1"></rect><rect x="14" y="4" width="1" height="1"></rect><rect x="16" y="4" width="1" height="1"></rect><rect x="17" y="4" width="1" height="1"></rect><rect x="18" y="4" width="1" height="1"></rect><rect x="20" y="4" width="1" height="1"></rect><rect x="0" y="5" width="1" height="1"></rect><rect x="6" y="5" width="1" height="1"></rect><rect x="10" y="5" width="1" height="1"></rect><rect x="11" y="5" width="1" height="1"></rect><rect x="14" y="5" width="1" height="1"></rect><rect x="20" y="5" width="1" height="1"></rect><rect x="0" y="6" width="1" height="1"></rect><rect x="1" y="6" width="1" height="1"></rect><rect x="2" y="6" width="1" height="1"></rect><rect x="3" y="6" width="1" height="1"></rect><rect x="4" y="6" width="1" height="1"></rect><rect x="5" y="6" width="1" height="1"></rect><rect x="6" y="6" width="1" height="1"></rect><rect x="8" y="6" width="1" height="1"></rect><rect x="10" y="6" width="1" height="1"></rect><rect x="12" y="6" width="1" height="1"></rect><rect x="14" y="6" width="1" height="1"></rect><rect x="15" y="6" width="1" height="1"></rect><rect x="16" y="6" width="1" height="1"></rect><rect x="17" y="6" width="1" height="1"></rect><rect x="18" y="6" width="1" height="1"></rect><rect x="19" y="6" width="1" height="1"></rect><rect x="20" y="6" width="1" height="1"></rect><rect x="8" y="7" width="1" height="1"></rect><rect x="9" y="7" width="1" height="1"></rect><rect x="12" y="7" width="1" height="1"></rect><rect x="1" y="8" width="1" height="1"></rect><rect x="6" y="8" width="1" height="1"></rect><rect x="9" y="8" width="1" height="1"></rect><rect x="11" y="8" width="1" height="1"></rect><rect x="13" y="8" width="1" height="1"></rect><rect x="15" y="8" width="1" height="1"></rect><rect x="16" y="8" width="1" height="1"></rect><rect x="18" y="8" width="1" height="1"></rect><rect x="19" y="8" width="1" height="1"></rect><rect x="0" y="9" width="1" height="1"></rect><rect x="1" y="9" width="1" height="1"></rect><rect x="9" y="9" width="1" height="1"></rect><rect x="10" y="9" width="1" height="1"></rect><rect x="11" y="9" width="1" height="1"></rect><rect x="14" y="9" width="1" height="1"></rect><rect x="16" y="9" width="1" height="1"></rect><rect x="17" y="9" width="1" height="1"></rect><rect x="18" y="9" width="1" height="1"></rect><rect x="19" y="9" width="1" height="1"></rect><rect x="20" y="9" width="1" height="1"></rect><rect x="0" y="10" width="1" height="1"></rect><rect x="3" y="10" width="1" height="1"></rect><rect x="4" y="10" width="1" height="1"></rect><rect x="5" y="10" width="1" height="1"></rect><rect x="6" y="10" width="1" height="1"></rect><rect x="8" y="10" width="1" height="1"></rect><rect x="9" y="10" width="1" height="1"></rect><rect x="11" y="10" width="1" height="1"></rect><rect x="13" y="10" width="1" height="1"></rect><rect x="19" y="10" width="1" height="1"></rect><rect x="20" y="10" width="1" height="1"></rect><rect x="0" y="11" width="1" height="1"></rect><rect x="1" y="11" width="1" height="1"></rect><rect x="3" y="11" width="1" height="1"></rect><rect x="8" y="11" width="1" height="1"></rect><rect x="12" y="11" width="1" height="1"></rect><rect x="13" y="11" width="1" height="1"></rect><rect x="20" y="11" width="1" height="1"></rect><rect x="0" y="12" width="1" height="1"></rect><rect x="2" y="12" width="1" height="1"></rect><rect x="4" y="12" width="1" height="1"></rect><rect x="6" y="12" width="1" height="1"></rect><rect x="8" y="12" width="1" height="1"></rect><rect x="9" y="12" width="1" height="1"></rect><rect x="11" y="12" width="1" height="1"></rect><rect x="13" y="12" width="1" height="1"></rect><rect x="8" y="13" width="1" height="1"></rect><rect x="9" y="13" width="1" height="1"></rect><rect x="10" y="13" width="1" height="1"></rect><rect x="11" y="13" width="1" height="1"></rect><rect x="14" y="13" width="1" height="1"></rect><rect x="16" y="13" width="1" height="1"></rect><rect x="19" y="13" width="1" height="1"></rect><rect x="20" y="13" width="1" height="1"></rect><rect x="0" y="14" width="1" height="1"></rect><rect x="1" y="14" width="1" height="1"></rect><rect x="2" y="14" width="1" height="1"></rect><rect x="3" y="14" width="1" height="1"></rect><rect x="4" y="14" width="1" height="1"></rect><rect x="5" y="14" width="1" height="1"></rect><rect x="6" y="14" width="1" height="1"></rect><rect x="11" y="14" width="1" height="1"></rect><rect x="14" y="14" width="1" height="1"></rect><rect x="15" y="14" width="1" height="1"></rect><rect x="16" y="14" width="1" height="1"></rect><rect x="17" y="14" width="1" height="1"></rect><rect x="19" y="14" width="1" height="1"></rect><rect x="0" y="15" width="1" height="1"></rect><rect x="6" y="15" width="1" height="1"></rect><rect x="8" y="15" width="1" height="1"></rect><rect x="9" y="15" width="1" height="1"></rect><rect x="10" y="15" width="1" height="1"></rect><rect x="11" y="15" width="1" height="1"></rect><rect x="12" y="15" width="1" height="1"></rect><rect x="14" y="15" width="1" height="1"></rect><rect x="16" y="15" width="1" height="1"></rect><rect x="18" y="15" width="1" height="1"></rect><rect x="20" y="15" width="1" height="1"></rect><rect x="0" y="16" width="1" height="1"></rect><rect x="2" y="16" width="1" height="1"></rect><rect x="3" y="16" width="1" height="1"></rect><rect x="4" y="16" width="1" height="1"></rect><rect x="6" y="16" width="1" height="1"></rect><rect x="8" y="16" width="1" height="1"></rect><rect x="10" y="16" width="1" height="1"></rect><rect x="14" y="16" width="1" height="1"></rect><rect x="15" y="16" width="1" height="1"></rect><rect x="16" y="16" width="1" height="1"></rect><rect x="20" y="16" width="1" height="1"></rect><rect x="0" y="17" width="1" height="1"></rect><rect x="2" y="17" width="1" height="1"></rect><rect x="3" y="17" width="1" height="1"></rect><rect x="4" y="17" width="1" height="1"></rect><rect x="6" y="17" width="1" height="1"></rect><rect x="8" y="17" width="1" height="1"></rect><rect x="9" y="17" width="1" height="1"></rect><rect x="17" y="17" width="1" height="1"></rect><rect x="18" y="17" width="1" height="1"></rect><rect x="19" y="17" width="1" height="1"></rect><rect x="20" y="17" width="1" height="1"></rect><rect x="0" y="18" width="1" height="1"></rect><rect x="2" y="18" width="1" height="1"></rect><rect x="3" y="18" width="1" height="1"></rect><rect x="4" y="18" width="1" height="1"></rect><rect x="6" y="18" width="1" height="1"></rect><rect x="14" y="18" width="1" height="1"></rect><rect x="17" y="18" width="1" height="1"></rect><rect x="18" y="18" width="1" height="1"></rect><rect x="19" y="18" width="1" height="1"></rect><rect x="20" y="18" width="1" height="1"></rect><rect x="0" y="19" width="1" height="1"></rect><rect x="6" y="19" width="1" height="1"></rect><rect x="8" y="19" width="1" height="1"></rect><rect x="10" y="19" width="1" height="1"></rect><rect x="11" y="19" width="1" height="1"></rect><rect x="13" y="19" width="1" height="1"></rect><rect x="14" y="19" width="1" height="1"></rect><rect x="15" y="19" width="1" height="1"></rect><rect x="16" y="19" width="1" height="1"></rect><rect x="19" y="19" width="1" height="1"></rect><rect x="20" y="19" width="1" height="1"></rect><rect x="0" y="20" width="1" height="1"></rect><rect x="1" y="20" width="1" height="1"></rect><rect x="2" y="20" width="1" height="1"></rect><rect x="3" y="20" width="1" height="1"></rect><rect x="4" y="20" width="1" height="1"></rect><rect x="5" y="20" width="1" height="1"></rect><rect x="6" y="20" width="1" height="1"></rect><rect x="9" y="20" width="1" height="1"></rect><rect x="13" y="20" width="1" height="1"></rect><rect x="14" y="20" width="1" height="1"></rect><rect x="15" y="20" width="1" height="1"></rect><rect x="16" y="20" width="1" height="1"></rect><rect x="17" y="20" width="1" height="1"></rect><rect x="19" y="20" width="1" height="1"></rect></g></svg></div>
+      <small>QRコードから追加（サンプル）</small>
+    </div>
+  </div>
+
+  <div class="contact-block" id="contactBlock">
+    <div class="contact-head" id="contactHead">
+      <div>
+        <h3>お問い合わせフォーム</h3>
+        <span class="sub">Contact / General inquiry</span>
+      </div>
+      <button type="button" class="contact-toggle" aria-label="開く">＋</button>
+    </div>
+    <div class="contact-body">
+      <div class="contact-body-inner">
+        <p class="intro">予約以外のご質問・ご相談はこちらから。24時間以内に折り返しご連絡いたします。</p>
+        <form class="book" id="bookForm">
+          <div class="row-2">
+            <div class="field"><label>お名前 *</label><input required name="name" /></div>
+            <div class="field"><label>ふりがな</label><input name="kana" /></div>
+          </div>
+          <div class="field"><label>メールアドレス *</label><input required type="email" name="email" /></div>
+          <div class="field"><label>お電話番号</label><input type="tel" name="phone" /></div>
+          <div class="field">
+            <label>お問い合わせ内容</label>
+            <div class="chips" id="topicChips">
+              <button type="button" class="chip on" data-v="style">スタイル相談</button>
+              <button type="button" class="chip" data-v="price">料金について</button>
+              <button type="button" class="chip" data-v="other">その他</button>
+            </div>
+          </div>
+          <div class="field"><label>ご相談・備考</label><textarea name="notes" rows="4" placeholder="参考画像のURLや、髪のお悩みなど"></textarea></div>
+          <button type="submit" class="submit-btn" id="submitBtn">送信する →</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ACCESS ── -->
+<section class="access" id="access" data-screen-label="Access">
+  <div class="access-col">
+    <span class="cap">Access — 店舗情報</span>
+    <h2>店舗情報</h2>
+    <dl class="access-list" style="margin: 0;">
+      <div class="access-row"><dt>住所</dt><dd>〒190-0164
+東京都あきる野市五日市1-2-3
+五日市ビル 2F</dd></div>
+      <div class="access-row"><dt>営業時間</dt><dd>10:00 — 19:00
+定休日：火曜日 / 第2・4水曜日</dd></div>
+      <div class="access-row"><dt>電話</dt><dd><a href="tel:0420000000">042-000-0000</a></dd></div>
+      <div class="access-row"><dt>最寄駅</dt><dd>JR五日市線「武蔵五日市」駅 徒歩4分</dd></div>
+    </dl>
+  </div>
+  <div class="map">
+    <svg viewBox="0 0 400 400" style="position: absolute; inset: 0; width: 100%; height: 100%;" preserveAspectRatio="xMidYMid slice">
+      <g stroke="#e6e6e6" stroke-width="1">
+        <line x1="0" x2="400" y1="80" y2="80"></line><line x1="0" x2="400" y1="160" y2="160"></line>
+        <line x1="0" x2="400" y1="240" y2="240"></line><line x1="0" x2="400" y1="320" y2="320"></line>
+        <line x1="80" x2="80" y1="0" y2="400"></line><line x1="160" x2="160" y1="0" y2="400"></line>
+        <line x1="240" x2="240" y1="0" y2="400"></line><line x1="320" x2="320" y1="0" y2="400"></line>
+      </g>
+      <line x1="0" y1="200" x2="400" y2="200" stroke="#999" stroke-width="3" opacity="0.4"></line>
+      <line x1="180" y1="0" x2="180" y2="400" stroke="#999" stroke-width="3" opacity="0.4"></line>
+      <path d="M 0 320 Q 100 300, 180 330 T 400 290" stroke="#111" stroke-width="2" fill="none" opacity="0.4"></path>
+      <circle cx="220" cy="180" r="11" fill="#111"></circle>
+      <circle cx="220" cy="180" r="19" fill="none" stroke="#111" stroke-width="1" opacity="0.5"></circle>
+      <circle cx="220" cy="180" r="30" fill="none" stroke="#111" stroke-width="1" opacity="0.25"></circle>
+      <text x="240" y="178" fill="#111" font-family="Helvetica, sans-serif" font-size="9" letter-spacing="2">のがみサロン</text>
+      <text x="240" y="192" fill="#999" font-family="Helvetica, sans-serif" font-size="8" letter-spacing="2">NOGAMI</text>
+      <text x="12" y="216" fill="#999" font-family="Helvetica, sans-serif" font-size="8" letter-spacing="1.5">ITSUKAICHI ST.</text>
+      <text x="12" y="392" fill="#999" font-family="Helvetica, sans-serif" font-size="7" letter-spacing="1">N ↑</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer class="foot" data-screen-label="Footer">
+  <span class="fm">NOGAMI</span>
+  <span>東京都あきる野市五日市 1-2-3 · 2F</span>
+  <span>TUE CLOSED · 10:00 — 19:00 · 完全予約制</span>
+  <span><a href="https://www.instagram.com" target="_blank" rel="noopener">INSTAGRAM</a> · <a href="https://lin.ee/" target="_blank" rel="noopener">LINE</a> · © 2026 NOGAMI SALON</span>
+</footer>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast">✓ お問い合わせを送信しました</div>
+
+<script>
+  // Drawer (mobile)
+  const menuBtn = document.getElementById('menuBtn');
+  const drawer = document.getElementById('drawer');
+  const drawerBg = document.getElementById('drawerBg');
+  const drawerClose = document.getElementById('drawerClose');
+  function setDrawer(open) {
+    drawer.classList.toggle('open', open);
+    drawerBg.classList.toggle('open', open);
+    drawer.setAttribute('aria-hidden', String(!open));
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && drawer.classList.contains('open')) setDrawer(false);
+  });
+  menuBtn.addEventListener('click', () => setDrawer(!drawer.classList.contains('open')));
+  drawerClose.addEventListener('click', () => setDrawer(false));
+  drawerBg.addEventListener('click', () => setDrawer(false));
+  drawer.querySelectorAll('nav a, .drawer-foot a').forEach(a => a.addEventListener('click', () => setDrawer(false)));
+
+  // Colour work — touch fallback: tap to toggle colour reveal
+  document.querySelectorAll('#cwGrid .ph').forEach(f => {
+    f.addEventListener('click', () => f.classList.toggle('reveal'));
+  });
+
+  // Gallery tabs — filter by category
+  const galleryGrid = document.getElementById('galleryGrid');
+  document.querySelectorAll('#galleryTabs button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#galleryTabs button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      const tab = b.dataset.tab;
+      // 方案A：只有 Color 标签下，染发作品显色；其他标签保持黑白
+      galleryGrid.classList.toggle('color-mode', tab === 'color');
+      galleryGrid.querySelectorAll('.ph').forEach(ph => {
+        const cats = (ph.dataset.cat || '').split(/\s+/).filter(Boolean);
+        ph.style.display = (tab === 'all' || cats.includes(tab)) ? '' : 'none';
+      });
+    });
+  });
+
+  // Topic chips (single-select)
+  const chipGrp = document.getElementById('topicChips');
+  chipGrp.querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => {
+      chipGrp.querySelectorAll('.chip').forEach(x => x.classList.remove('on'));
+      c.classList.add('on');
+    });
+  });
+
+  // Contact accordion
+  const contactBlock = document.getElementById('contactBlock');
+  document.getElementById('contactHead').addEventListener('click', () => contactBlock.classList.toggle('open'));
+
+  // Form
+  const form = document.getElementById('bookForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const toast = document.getElementById('toast');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    submitBtn.textContent = '✓ Sent';
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+      submitBtn.textContent = '送信する →';
+      form.reset();
+    }, 2800);
+  });
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      const id = a.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      const y = el.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>
